@@ -13,56 +13,67 @@
 	import ImageConverterOptions from './image-converter-options.svelte';
 	import { convertCanvas } from './utils';
 
+	type Stage = 'upload' | 'options' | 'converting' | 'done' | 'downloading';
+
+	let stage = $state<Stage>('upload');
 	let input = $state<File[]>([]);
 	let output = $state<(File | null)[]>([]);
 	let options = $state<ImageConverterOptions>();
 
-	let converting = $state(false);
-	let downloading = $state(false);
+	const is = (...stages: Stage[]) => stages.includes(stage);
 
 	const reset = () => {
-		converting = false;
+		stage = 'upload';
 		input = [];
 		output = [];
 	};
 
 	const setFiles = (files: File[]) => {
-		if (files.length > 0 && allUnderMB(files, 500) && allSupportedType(files, ['image'])) input = files;
-		else reset();
+		if (files.length > 0 && allUnderMB(files, 500) && allSupportedType(files, ['image'])) {
+			input = files;
+			stage = 'options';
+		}
 	};
 
 	const convert = async () => {
-		if (converting) return;
-		const values = options?.getValues();
-		if (!values) return;
+		if (is('converting')) return;
 
-		converting = true;
+		const optionValues = options?.getValues();
+		if (!optionValues) return;
+
+		stage = 'converting';
 		output = [];
 
 		for (const file of input) {
 			let result: File | null = null;
 			try {
-				result = await convertCanvas(file, values);
+				result = await convertCanvas(file, optionValues);
 			} catch (err) {
-				if (converting) toast.error(`${file.name}: ${err instanceof Error ? err.message : 'Conversion failed'}`);
+				if (is('converting')) {
+					toast.error(`${file.name}: Conversion failed`);
+					console.error(err);
+				}
 			}
 
-			if (!converting) return;
+			if (!is('converting')) return;
 			output.push(result);
 		}
 
-		converting = false;
+		stage = 'done';
 	};
 
 	const download = async () => {
-		if (downloading) return;
-		downloading = true;
+		if (!is('done')) return;
+
+		stage = 'downloading';
+
 		try {
 			await downloadFiles(output);
 		} catch (err) {
-			toast.error(err instanceof Error ? err.message : 'Failed to create the download.');
+			toast.error('Download failed');
+			console.error(err);
 		} finally {
-			downloading = false;
+			if (is('downloading')) stage = 'done';
 		}
 	};
 </script>
@@ -77,11 +88,11 @@
 	<Dialog.Content
 		class="max-h-screen scrollbar-thin overflow-y-auto sm:max-w-lg"
 		showCloseButton={false}
-		escapeKeydownBehavior={converting ? 'ignore' : 'close'}
-		interactOutsideBehavior={converting ? 'ignore' : 'close'}>
-		{#if !input.length}
+		escapeKeydownBehavior={is('converting', 'downloading') ? 'ignore' : 'close'}
+		interactOutsideBehavior={is('converting', 'downloading') ? 'ignore' : 'close'}>
+		{#if is('upload')}
 			<FileUpload {setFiles} />
-		{:else if !converting && !output.length}
+		{:else if is('options')}
 			<div in:fade={{ duration: 200 }}>
 				<ImageConverterOptions bind:this={options} />
 
@@ -89,6 +100,7 @@
 					<Dialog.Close type="button" class={buttonVariants({ variant: 'outline' })}>
 						<X /> Cancel
 					</Dialog.Close>
+
 					<Button onclick={convert}>
 						<RefreshCw /> Convert
 					</Button>
@@ -102,8 +114,9 @@
 					<Dialog.Close type="button" class={buttonVariants({ variant: 'outline' })}>
 						<X /> Cancel
 					</Dialog.Close>
-					<Button onclick={download} disabled={converting || downloading || !output.some(Boolean)}>
-						{#if downloading}
+
+					<Button onclick={download} disabled={!is('done') || !output.some(Boolean)}>
+						{#if is('downloading')}
 							<Spinner /> Download
 						{:else}
 							<Download /> Download
