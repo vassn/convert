@@ -1,13 +1,17 @@
 <script lang="ts">
+	import { dev } from '$app/environment';
 	import { onNavigate } from '$app/navigation';
 	import favicon from '$lib/assets/cog.svg';
 	import LightSwitch from '$lib/components/light-switch.svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Toaster } from '$lib/components/ui/sonner';
 	import interNormalWoff2 from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2';
+	import { injectAnalytics } from '@vercel/analytics/sveltekit';
 	import './layout.css';
 
 	let { children } = $props();
+
+	injectAnalytics({ mode: dev ? 'development' : 'production' });
 
 	onNavigate((navigation) => {
 		if (!document.startViewTransition) return;
