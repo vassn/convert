@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ConverterCard from '$lib/components/converter/converter-card.svelte';
+	import ConverterCard from '$lib/components/shared/converter-card.svelte';
 	import { AudioLines } from '@lucide/svelte';
 </script>
 

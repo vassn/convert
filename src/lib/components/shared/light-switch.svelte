@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Moon, Sun } from '@lucide/svelte';
 	import { ModeWatcher, toggleMode } from 'mode-watcher';
-	import { Button } from './ui/button';
+	import { Button } from '../ui/button';
 
 	let sunRef: HTMLSpanElement;
 	let moonRef: HTMLSpanElement;

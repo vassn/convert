@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import * as Empty from '$lib/components/ui/empty';
-	import { CloudUpload, FolderSearch } from '@lucide/svelte';
+	import { FolderSearch, Upload } from '@lucide/svelte';
 
 	let { setFiles }: { setFiles: (files: File[]) => void } = $props();
 
@@ -37,9 +37,9 @@
 	ondrop={handleDrop}>
 	<Empty.Header>
 		<Empty.Media variant="icon">
-			<CloudUpload />
+			<Upload />
 		</Empty.Media>
-		<Empty.Title>Upload Files</Empty.Title>
+		<Empty.Title class="tracking-wide">Convert Files</Empty.Title>
 		<Empty.Description>Drag and drop or browse.</Empty.Description>
 	</Empty.Header>
 	<Empty.Content>

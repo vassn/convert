@@ -1,15 +1,15 @@
 <script lang="ts">
-	import ConverterCard from '$lib/components/converter/converter-card.svelte';
-	import FileUpload from '$lib/components/converter/file-upload.svelte';
-	import Progress from '$lib/components/converter/progress.svelte';
+	import ConverterCard from '$lib/components/shared/converter-card.svelte';
+	import FileUpload from '$lib/components/shared/file-upload.svelte';
+	import Progress from '$lib/components/shared/progress.svelte';
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Spinner } from '$lib/components/ui/spinner';
 	import { Download, Image, RefreshCw, X } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import { fade } from 'svelte/transition';
-	import { downloadFiles } from '../shared/download';
-	import { allSupportedType, allUnderMB } from '../shared/validation';
+	import { downloadFiles } from '../utils/download';
+	import { allSupportedType, allUnderMB } from '../utils/validation';
 	import ImageConverterOptions from './image-converter-options.svelte';
 	import { convertCanvas } from './utils';
 
